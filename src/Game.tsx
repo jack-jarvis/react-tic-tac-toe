@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 import { Board } from "./Board";
 import { PlayerSymbol, SquareState, BoardState } from "./Types";
 
@@ -28,11 +28,6 @@ const getWinner = (squares: SquareState[]): PlayerSymbol | null => {
   return null;
 };
 
-interface IGameState {
-  nextPlayer: PlayerSymbol;
-  history: HistoryEntry[];
-}
-
 interface HistoryEntry {
   move: Move | null;
   squares: BoardState;
@@ -45,79 +40,70 @@ interface Move {
 
 const emptyBoard = Array(9).fill("");
 
-export class Game extends React.Component<{}, IGameState> {
-  constructor(props: {}) {
-    super(props);
-    this.state = {
-      nextPlayer: "X",
-      history: [
-        {
-          move: null,
-          squares: emptyBoard,
-        },
-      ],
-    };
-  }
+export function Game() {
+  const [nextPlayer, setNextPlayer] = useState<PlayerSymbol>("X");
+  const [history, setHistory] = useState<HistoryEntry[]>([
+    {
+      move: null,
+      squares: emptyBoard,
+    },
+  ]);
 
-  getCurrentState(): BoardState {
-    return this.state.history[this.state.history.length - 1].squares;
-  }
+  const getCurrentState = () => {
+    return history[history.length - 1].squares;
+  };
 
-  handleClick(i: number): void {
-    if (getWinner(this.getCurrentState())) return;
+  const handleClick = (i: number): void => {
+    if (getWinner(getCurrentState())) return;
 
-    const squares = this.getCurrentState().slice();
+    const squares = getCurrentState().slice();
     if (squares[i] === "") {
-      squares[i] = this.state.nextPlayer;
-      const history = this.state.history.slice();
-      history.push({
+      squares[i] = nextPlayer;
+      const newHistory = history.slice();
+      newHistory.push({
         move: {
           square: i,
-          player: this.state.nextPlayer,
+          player: nextPlayer,
         },
         squares: squares,
       });
-      this.setState({
-        nextPlayer: otherPlayer(this.state.nextPlayer),
-        history: history,
-      });
+      setNextPlayer(otherPlayer(nextPlayer));
+      setHistory(newHistory);
     }
-  }
+  };
 
-  render() {
-    const winner = getWinner(this.getCurrentState());
-    const status = winner
-      ? `The winner is ${winner}`
-      : `Next player: ${this.state.nextPlayer}`;
+  const winner = getWinner(getCurrentState());
+  const status = winner
+    ? `The winner is ${winner}`
+    : `Next player: ${nextPlayer}`;
 
-    const historyList = this.state.history.map((h) => {
-      if (h.move) {
-        return (
-          <li>
-            {h.move.player} in {h.move.square} <button>Jump to</button>
-          </li>
-        );
-      }
+  const historyList = history.map((h) => {
+    if (h.move) {
       return (
         <li>
-          Start <button>Jump to</button>
+          {h.move.player} in {h.move.square} <button>Jump to</button>
         </li>
       );
-    });
-
+    }
     return (
-      <div className="game">
-        <div className="game-board">
-          <Board
-            squares={this.getCurrentState()}
-            onClick={(i: number) => this.handleClick(i)}
-          />
-        </div>
-        <div className="game-info">
-          <div>{status}</div>
-          <ol>{historyList}</ol>
-        </div>
-      </div>
+      <li>
+        Start <button>Jump to</button>
+      </li>
     );
-  }
+  });
+
+  return (
+    <div className="game">
+      <div className="game-board">
+        <Board
+          squares={getCurrentState()}
+          onClick={(i: number) => handleClick(i)}
+        />
+      </div>
+      <div className="game-info">
+        <div>{status}</div>
+        <ol>{historyList}</ol>
+      </div>
+    </div>
+  );
 }
