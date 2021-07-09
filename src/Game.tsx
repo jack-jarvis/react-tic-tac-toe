@@ -38,7 +38,7 @@ export function Game() {
         />
       </div>
       <div className="game-info">
-        <div>{status}</div>
+        <div data-testid="status">{status}</div>
         <ol>{historyList}</ol>
       </div>
     </div>
