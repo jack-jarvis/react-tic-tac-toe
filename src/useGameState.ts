@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { getWinnerFromBoardState, otherPlayer } from "./GameUtils";
 import { BoardState, PlayerSymbol } from "./Types";
 
 interface HistoryEntry {
@@ -13,10 +14,6 @@ interface Move {
 
 const emptyBoard = Array(9).fill("");
 
-const otherPlayer = (symbol: PlayerSymbol): PlayerSymbol => {
-  return symbol === "X" ? "O" : "X";
-};
-
 export default function useGameState() {
   const [nextPlayer, setNextPlayer] = useState<PlayerSymbol>("X");
   const [history, setHistory] = useState<HistoryEntry[]>([
@@ -28,6 +25,10 @@ export default function useGameState() {
 
   const getCurrentState = () => {
     return history[history.length - 1].squares;
+  };
+
+  const getWinner = () => {
+    return getWinnerFromBoardState(getCurrentState());
   };
 
   const makeMove = (i: number) => {
@@ -47,29 +48,6 @@ export default function useGameState() {
       setNextPlayer(otherPlayer(nextPlayer));
       setHistory(newHistory);
     }
-  };
-
-  const getWinner = (): PlayerSymbol | null => {
-    const squares = getCurrentState();
-    const lines = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
-
-    for (let i = 0; i < lines.length; i++) {
-      const symbols = lines[i].map((n) => squares[n]);
-      if (symbols[0] !== "" && symbols.every((s) => s === symbols[0])) {
-        return symbols[0];
-      }
-    }
-
-    return null;
   };
 
   return [nextPlayer, history, getCurrentState, makeMove, getWinner] as const;
