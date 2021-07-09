@@ -5,6 +5,7 @@ import { Game } from "../Game";
 interface IGameTestWrapper {
   getSquare: (squareNumber: number) => Promise<HTMLElement>;
   clickSquare: (squareNumber: number) => Promise<void>;
+  clickHistoryEntry: (moveNumber: number) => Promise<void>;
   getStatusText: () => Promise<HTMLElement>;
 }
 
@@ -19,12 +20,18 @@ const CreateGameTestWrapper = (): IGameTestWrapper => {
     const square = await getSquare(squareNumber);
     fireEvent.click(square);
   };
+
+  const clickHistoryEntry = async (moveNumber: number) => {
+    const button = await findByTestId(`history-${moveNumber}`);
+    fireEvent.click(button);
+  };
   return {
     getSquare: getSquare,
     clickSquare: clickSquare,
     getStatusText: async () => {
       return await findByTestId("status");
     },
+    clickHistoryEntry: clickHistoryEntry,
   };
 };
 
@@ -105,5 +112,38 @@ describe("Game", () => {
 
     await game.clickSquare(0);
     expect((await game.getSquare(0)).innerHTML).toBe("X");
+  });
+});
+
+describe("History", () => {
+  it("should reset board state when jumping", async () => {
+    const game = CreateGameTestWrapper();
+
+    await game.clickSquare(0); // X
+    await game.clickSquare(1); // O
+
+    await game.clickHistoryEntry(1);
+
+    expect((await game.getSquare(0)).innerHTML).toBe("X");
+    expect((await game.getSquare(1)).innerHTML).toBe("");
+  });
+  it("should set correct player after jump", async () => {
+    const game = CreateGameTestWrapper();
+
+    await game.clickSquare(0); // X
+    await game.clickSquare(1); // O
+
+    await game.clickHistoryEntry(1);
+
+    expect((await game.getStatusText()).innerHTML).toBe("Next player: O");
+  });
+  it("should allow jumping to start of game", async () => {
+    const game = CreateGameTestWrapper();
+
+    await game.clickSquare(0); // X
+
+    await game.clickHistoryEntry(0);
+
+    expect((await game.getSquare(0)).innerHTML).toBe("");
   });
 });
