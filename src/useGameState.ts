@@ -50,5 +50,19 @@ export default function useGameState() {
     }
   };
 
-  return [nextPlayer, history, getCurrentState, makeMove, getWinner] as const;
+  const jumpTo = (historyEntry: HistoryEntry) => {
+    const index = history.indexOf(historyEntry);
+    const newHistory = history.slice(0, index + 1);
+    setHistory(newHistory);
+    setNextPlayer(otherPlayer(historyEntry.move?.player ?? "O"));
+  };
+
+  return [
+    nextPlayer,
+    history,
+    getCurrentState,
+    makeMove,
+    getWinner,
+    jumpTo,
+  ] as const;
 }

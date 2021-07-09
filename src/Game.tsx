@@ -2,7 +2,7 @@ import { Board } from "./Board";
 import useGameState from "./useGameState";
 
 export function Game() {
-  const [nextPlayer, history, getCurrentState, makeMove, getWinner] =
+  const [nextPlayer, history, getCurrentState, makeMove, getWinner, jumpTo] =
     useGameState();
 
   const handleClick = (i: number): void => {
@@ -18,13 +18,22 @@ export function Game() {
     if (h.move) {
       return (
         <li key={h.move.player + h.move.square}>
-          {h.move.player} in {h.move.square} <button>Jump to</button>
+          {h.move.player} in {h.move.square}{" "}
+          <button
+            data-testid={`history-${history.indexOf(h)}`}
+            onClick={() => jumpTo(h)}
+          >
+            Jump to
+          </button>
         </li>
       );
     }
     return (
       <li key={0}>
-        Start <button>Jump to</button>
+        Start{" "}
+        <button data-testid="history-0" onClick={() => jumpTo(h)}>
+          Jump to
+        </button>
       </li>
     );
   });
