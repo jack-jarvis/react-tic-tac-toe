@@ -9,7 +9,7 @@ const possibleSquareStates: SquareState[] = ["", "O", "X"];
 describe("Square", () => {
   it.each(possibleSquareStates)("should display %p correctly", (symbol) => {
     act(() => {
-      render(<Square value={symbol} onClick={() => {}} />);
+      render(<Square value={symbol} onClick={() => {}} squareNumber={0} />);
     });
     expect(screen.getByRole("button")).toHaveTextContent(symbol);
   });
@@ -17,7 +17,7 @@ describe("Square", () => {
   it("should call onClick when clicked", () => {
     const onClick = jest.fn();
     act(() => {
-      render(<Square value="" onClick={onClick} />);
+      render(<Square value="" onClick={onClick} squareNumber={0} />);
       fireEvent.click(screen.getByRole("button"));
     });
 

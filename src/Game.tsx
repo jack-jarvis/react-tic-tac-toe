@@ -17,20 +17,20 @@ export function Game() {
   const historyList = history.map((h) => {
     if (h.move) {
       return (
-        <li>
+        <li key={h.move.player + h.move.square}>
           {h.move.player} in {h.move.square} <button>Jump to</button>
         </li>
       );
     }
     return (
-      <li>
+      <li key={0}>
         Start <button>Jump to</button>
       </li>
     );
   });
 
   return (
-    <div className="game">
+    <div data-testid="game" className="game">
       <div className="game-board">
         <Board
           squares={getCurrentState()}

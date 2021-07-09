@@ -2,23 +2,25 @@ import { Square } from "./Square";
 import { SquareState } from "./Types";
 
 interface IBoardProps {
-    squares: SquareState[];
-    onClick: (i: number) => void;
-  }
+  squares: SquareState[];
+  onClick: (i: number) => void;
+}
 
 export function Board(props: IBoardProps) {
   const renderSquare = (i: number) => {
     return (
       <Square
+        squareNumber={i}
         value={props.squares[i]}
         onClick={() => {
           props.onClick(i);
-        }} />
+        }}
+      />
     );
   };
 
   return (
-    <div>
+    <div data-testid="board">
       <div className="board-row">
         {renderSquare(0)}
         {renderSquare(1)}
